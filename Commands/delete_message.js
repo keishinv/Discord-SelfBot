@@ -31,7 +31,6 @@ async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) 
         }
     }
     commandInfo(`Deleted ${deletedCount} messages in ${ctx.channelId}`)
-    console.log('a');
     return;
 }
 

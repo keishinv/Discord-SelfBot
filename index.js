@@ -6,6 +6,7 @@ const { eventsInfo } = require("./Utils/logger");
 
 const client = new Client({
     checkUpdate: false
+    // https://discordjs-self-v13.netlify.app/#/docs/docs/main/typedef/ClientOptions
 });
 client.commands = new Collection();
 client.aliases = new Collection();

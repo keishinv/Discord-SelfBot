@@ -6,8 +6,11 @@ async function eventHandler(client) {
 
     for (const file of files) {
         const name = file.slice(0, -3);
+
         eventsInfo(`${name} Online.`);
+
         const event = require(`../Events/${file}`);
+
         if (event.once) {
             client.once(name, async (...args) => { event.execute(...args, client) });
         } else {

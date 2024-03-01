@@ -8,13 +8,12 @@ module.exports = {
      * @param {Message} ctx 
      */
     async execute(ctx, client) {
+        if (ctx.author.id !== client.user.id) return;
         let content = ctx.content;
 
         const args = content.slice(config.user.prefix.length).trim().split(/ +/g);
         const commandName = args.shift().toLowerCase();
         let command;
-
-        if (!(ctx.author.id == client.user.id)) return;
 
         if (!content.toLowerCase().startsWith(config.user.prefix)) return;
 
