@@ -3,26 +3,35 @@ const { commandInfo } = require("../Utils/logger");
 const { Client, Message, DiscordAPIError } = require("discord.js-selfbot-v13");
 async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) {
     let deletedCount = 0;
+    let deletedLoop = 0;
+    let offset = 0;
 
     const channel = getChannel(client, channelId);
     // DELETE REACTIONS
     // SOME ISSUE WITH LONG DELETES DOESN'T LOG DELETED COUNT
     // DELETED COUNT MSG NUMBER
     while (deletedCount < max) {
-        const messages = await channel.messages.search({
-            channel: [channel.id],
-            offset: deletedCount,
+        deletedLoop = 0;
+        const messagesCollector = await channel.messages.search({
+            // channel: [channel.id],
+            channel: [channelId],
+            // Maybe offset - 1
+            offset: offset,
             minId: Date.now(),
         });
+
+        const messages = messagesCollector.messages;
+        
         if (messages.size === 0) break;
 
-        const deletableMessages = messages.messages.filter(m => m.author.id === client.user.id && !m.system);
+        const deletableMessages = messages.filter(m => m.author.id === client.user.id && !m.system);
 
         for (const message of deletableMessages.values()) {
             try {
                 await message.delete();
 
                 deletedCount++;
+                deletedLoop++;
                 if (deletedCount >= max) break;
             } catch (error) {
                 if (!(error instanceof DiscordAPIError && error.message === 'Unknown Message')) {
@@ -30,6 +39,10 @@ async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) 
                 }
             }
         }
+
+        // console.log(messages.size);
+        offset+=(messages.size - deletedLoop);
+        // console.log(offset);
     }
     commandInfo(`Deleted ${deletedCount} messages in ${ctx.channelId}`)
     return;
