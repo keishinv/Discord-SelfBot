@@ -7,6 +7,7 @@ async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) 
     const channel = getChannel(client, channelId);
     // DELETE REACTIONS
     // SOME ISSUE WITH LONG DELETES DOESN'T LOG DELETED COUNT
+    // DELETED COUNT MSG NUMBER
     while (deletedCount < max) {
         const messages = await channel.messages.search({
             channel: [channel.id],
