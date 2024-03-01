@@ -29,7 +29,6 @@ function getLogger() {
     return logger;
 }
 
-
 module.exports = {
     getLogger: getLogger,
     commandInfo: (content) => {

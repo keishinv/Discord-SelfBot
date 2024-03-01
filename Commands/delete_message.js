@@ -1,27 +1,38 @@
 const { getChannel } = require("../Utils/getChannel.js");
-const { Client, Message } = require("discord.js-selfbot-v13");
+const { commandInfo } = require("../Utils/logger");
+const { Client, Message, DiscordAPIError } = require("discord.js-selfbot-v13");
 async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) {
-    channelId = (channelId), max = parseInt(max)
+    let deletedCount = 0;
 
     const channel = getChannel(client, channelId);
-    // console.log(channel);
-    const messages = await channel.messages.fetch({ limit: max });
-    // console.log(messages);
+    // DELETE REACTIONS
+    // SOME ISSUE WITH LONG DELETES DOESN'T LOG DELETED COUNT
+    while (deletedCount < max) {
+        const messages = await channel.messages.search({
+            channel: [channel.id],
+            offset: deletedCount,
+            minId: Date.now(),
+        });
+        if (messages.size === 0) break;
 
-    // CHECK MSGTYPE CALL ETC
-    // console.log("a");
-    for (m of messages.values()) {
-        // INITIAL MSG DELETE IN MSGCREATE IS PULLED THINKING IT HASNT BEEN DELETED
-        // DiscordAPIError: Unknown Message
-        // console.log(m);
-        // console.log("---");
-        // console.log(m.author.id == client.user.id);
-        // m.delete();
-        if (m) {
-            m.delete();
+        const deletableMessages = messages.messages.filter(m => m.author.id === client.user.id && !m.system);
+
+        for (const message of deletableMessages.values()) {
+            try {
+                await message.delete();
+
+                deletedCount++;
+                if (deletedCount >= max) break;
+            } catch (error) {
+                if (!(error instanceof DiscordAPIError && error.message === 'Unknown Message')) {
+                    console.error("Failed to delete message:", error);
+                }
+            }
         }
     }
-
+    commandInfo(`Deleted ${deletedCount} messages in ${ctx.channelId}`)
+    console.log('a');
+    return;
 }
 
 module.exports = {
@@ -32,17 +43,28 @@ module.exports = {
      * @param {Array} args  
      */
     async execute(client, ctx, ...args) {
-        // console.log(ctx);
-        // console.log(args);
-        // console.log(client);
-        await delete_message(client, ctx, ...args);
+        const max = parseInt(args[0], 10) || 20;
+        const channelId = args[1] || ctx.channelId;
+
+        await delete_message(client, ctx, max, channelId);
     }
 }
 
+// Alternative | doesn't have filtering
+// const channel = getChannel(client, channelId);
+// // const messages = await channel.messages.fetch({ limit: max });
 
-// Create a message collector
-// const filter = m => m.author.id == client.user.id;
-// const filter = m => m.content.includes('a');
-// const collector = channel.createMessageCollector({ filter, time: 15_000 });
-// collector.on('collect', m => console.log(`Collected ${m.content}`));
-// collector.on('end', collected => console.log(`Collected ${collected.size} items`));
+// for (m of messages.values()) {
+//     try {
+//         if (m.author.id == client.user.id && !(m.system)) {
+//             m.delete();
+//         }
+//     } catch (error) {
+//         if (error instanceof DiscordAPIError && error.message === 'Unknown Message') {
+//             //   console.error('Tried to delete a message that does not exist');
+//         } else {
+//             console.log(m);
+//             // throw error; // Re-throw the error if it's not the specific one we're looking for
+//         }
+//     }
+// }

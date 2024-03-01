@@ -1,5 +1,6 @@
 const { Client, Message } = require("discord.js-selfbot-v13");
 const config = require('../config');
+
 module.exports = {
     once: false,
     /**
@@ -15,7 +16,6 @@ module.exports = {
 
         if (!(ctx.author.id == client.user.id)) return;
 
-        // console.log(ctx);
         if (!content.toLowerCase().startsWith(config.user.prefix)) return;
 
         if (client.commands.has(commandName)) command = client.commands.get(commandName);
