@@ -41,5 +41,6 @@ console.log(`%cYou now have your token in the clipboard!`, 'font-size: 16px');
 ```
 # Run Project
 Make sure [Node.js](https://nodejs.org/en/download/prebuilt-installer/current) is installed 
+
 ``` npm index.js ```
 
