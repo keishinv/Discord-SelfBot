@@ -1,5 +1,3 @@
-# Discord SelfBot
-
 # Setup
 Open **.env**:
 ```  
@@ -43,4 +41,7 @@ console.log(`%cYou now have your token in the clipboard!`, 'font-size: 16px');
 Make sure [Node.js](https://nodejs.org/en/download/prebuilt-installer/current) is installed 
 
 Run ``` npm index.js ``` from root folder
+# Discord SelfBot - Commands
 
+> General Commands
+- **`(delete_message del dm) delete_count channel_id`** - Deletes specified number of messages in a channel
