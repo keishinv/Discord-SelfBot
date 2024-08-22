@@ -7,6 +7,7 @@ USER_TOKEN =
 USER_PREFIX = 
 ```
 Paste Discord account token to the end of **USER_TOKEN**
+
 Set your preffered command prefix to **USER_PREFIX**
 
 # How to get user token
