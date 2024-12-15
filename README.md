@@ -40,7 +40,7 @@ console.log(`%cYou now have your token in the clipboard!`, 'font-size: 16px');
 # Run Project
 Make sure [Node.js](https://nodejs.org/en/download/prebuilt-installer/current) is installed 
 
-Run ``` npm index.js ``` from root folder
+Run ``` node index.js ``` from root folder
 # Discord SelfBot - Commands
 
 > General Commands
