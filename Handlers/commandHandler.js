@@ -10,7 +10,7 @@ async function commandHandler(client) {
 
         client.commands.set(commandName, command);
 
-        commandInfo(`${commandName} Online.`);
+        commandInfo(`${commandName} Loaded.`);
 
         command.aliases.forEach(alias => {
             client.aliases.set(alias, command);

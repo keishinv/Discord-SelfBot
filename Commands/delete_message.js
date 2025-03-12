@@ -1,6 +1,6 @@
-const { getChannel } = require("../Utils/getChannel.js");
 const { commandInfo } = require("../Utils/logger");
-const { Client, Message, DiscordAPIError } = require("discord.js-selfbot-v13");
+const { getChannel } = require("../Utils/getChannel");
+const { Client, Collection, Message, DiscordAPIError } = require("discord.js-selfbot-v13");
 async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) {
     let deletedCount = 0;
     let deletedLoop = 0;
@@ -8,23 +8,27 @@ async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) 
 
     const channel = getChannel(client, channelId);
     // DELETE REACTIONS
-    // SOME ISSUE WITH LONG DELETES DOESN'T LOG DELETED COUNT
     // DELETED COUNT MSG NUMBER
+
+    process.stdout.write(`Deleting ${deletedCount}/${max}`);
+
     while (deletedCount < max) {
         deletedLoop = 0;
         const messagesCollector = await channel.messages.search({
-            // channel: [channel.id],
-            channel: [channelId],
-            // Maybe offset - 1
-            offset: offset,
-            minId: Date.now(),
+            limit: 25,
+            authors: [client.user.id],
+            channels: [channelId],
+            // sortBy: 'timestamp',
+            // sortOrder: 'asc',
+            // minId: Date.now(),
         });
 
         const messages = messagesCollector.messages;
-        
-        if (messages.size === 0) break;
 
-        const deletableMessages = messages.filter(m => m.author.id === client.user.id && !m.system);
+        const deletableMessages = messages.filter(m => !m.system);
+
+        if (deletableMessages.size === 0) break; // Rare chance if all 25 msgs are system, mab near end- will terminate before all msgs
+        // should compare last messages to new message if == break; not a big issue tbh
 
         for (const message of deletableMessages.values()) {
             try {
@@ -32,23 +36,27 @@ async function delete_message(client, ctx, max = 20, channelId = ctx.channelId) 
 
                 deletedCount++;
                 deletedLoop++;
+
+                process.stdout.write(`\r Deleting ${deletedCount}/${max}`);
+
                 if (deletedCount >= max) break;
+
             } catch (error) {
                 if (!(error instanceof DiscordAPIError && error.message === 'Unknown Message')) {
                     console.error("Failed to delete message:", error);
                 }
             }
         }
-
-        // console.log(messages.size);
-        offset+=(messages.size - deletedLoop);
-        // console.log(offset);
+        offset += (messages.size - deletedLoop);
     }
-    commandInfo(`Deleted ${deletedCount} messages in ${ctx.channelId}`)
+    console.log();
+    commandInfo(`Deleted ${deletedCount}/${max} messages in ${channelId}`)
     return;
 }
 
+
 module.exports = {
+    delete_message: delete_message,
     aliases: ["del", "dm"],
     /**
      * @param {Message} ctx
@@ -63,9 +71,9 @@ module.exports = {
     }
 }
 
-// Alternative | doesn't have filtering
-// const channel = getChannel(client, channelId);
-// // const messages = await channel.messages.fetch({ limit: max });
+// Alternative | doesn't have filtering; maybe use around option? id
+// https://discordjs.dev/docs/packages/discord.js/14.14.1/MessageManager:Class#fetch
+// const messages = await channel.messages.fetch({ limit: max });
 
 // for (m of messages.values()) {
 //     try {
@@ -81,3 +89,5 @@ module.exports = {
 //         }
 //     }
 // }
+
+// Other option MessageCollector, seems to be broken in selfbot version

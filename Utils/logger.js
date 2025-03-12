@@ -1,24 +1,25 @@
 const winston = require('winston');
-const chalk = require("chalk")
+const chalk = require("chalk");
+
+// Define colors for each log level.
+const levelColors = {
+    info: chalk.white,
+    error: chalk.red,
+    warn: chalk.yellow,
+    debug: chalk.blue,
+    critical: chalk.redBright,
+};
 
 const logger = winston.createLogger({
     level: 'info',
-    format: winston.format.combine(winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), winston.format.printf(({ level, message, timestamp }) => {
-        switch (level) {
-            case "info":
-                return `${chalk.cyan(`[${timestamp}]`)} [Server worker/${level.toUpperCase()}]: ${message}`;
-            case "error":
-                return `${chalk.cyan(`[${timestamp}]`)} ${chalk.red(`[Server worker/${level.toUpperCase()}]: ${message}`)}`;
-            case "warn":
-                return `${chalk.cyan(`[${timestamp}]`)} ${chalk.yellow(`[Server worker/${level.toUpperCase()}]: ${message}`)}`;
-            case "debug":
-                return `${chalk.cyan(`[${timestamp}]`)} ${chalk.blue(`[Server worker/${level.toUpperCase()}]: ${message}`)}`;
-            case "critical":
-                return `${chalk.cyan(`[${timestamp}]`)} ${chalk.redBright(`[Server worker/${level.toUpperCase()}]: ${message}`)}`;
-            default:
-                return `${chalk.cyan(`[${timestamp}]`)} [Server worker/${level.toUpperCase()}]: ${message}`;
-        }
-    })
+    format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.printf(({ level, message, timestamp }) => {
+            // Get the appropriate color function for the current level
+            const colorFn = levelColors[level] || ((text) => text);
+            // Build the formatted message. This way the repeated text is centralized.
+            return `${chalk.cyan(`[${timestamp}]`)} [${level.toUpperCase()}]: ${colorFn(message)}`;
+        })
     ),
     transports: [
         new winston.transports.Console(),
@@ -30,11 +31,7 @@ function getLogger() {
 }
 
 module.exports = {
-    getLogger: getLogger,
-    commandInfo: (content) => {
-        return getLogger().info(chalk.yellow("[COMMANDS] ") + content);
-    },
-    eventsInfo: (content) => {
-        return getLogger().info(chalk.yellow("[EVENTS] ") + content);
-    }
-}
+    getLogger,
+    commandInfo: (content) => getLogger().info(chalk.yellow("[COMMANDS] ") + content),
+    eventsInfo: (content) => getLogger().info(chalk.yellow("[EVENTS] ") + content),
+};
