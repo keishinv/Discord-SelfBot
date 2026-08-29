@@ -34,4 +34,9 @@ module.exports = {
     getLogger,
     commandInfo: (content) => getLogger().info(chalk.yellow("[COMMANDS] ") + content),
     eventsInfo: (content) => getLogger().info(chalk.yellow("[EVENTS] ") + content),
+    rateInfo: (content) => getLogger().info(chalk.magenta("[RATELIMIT] ") + content),
+    rateWarn: (content) => getLogger().warn(chalk.magenta("[RATELIMIT] ") + content),
+    rateError: (content) => getLogger().error(chalk.magenta("[RATELIMIT] ") + content),
+    queueInfo: (content) => getLogger().info(chalk.blue("[QUEUE] ") + content),
+    queueWarn: (content) => getLogger().warn(chalk.blue("[QUEUE] ") + content),
 };
